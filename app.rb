@@ -25,12 +25,15 @@ class App < Sinatra::Base
     haml ""
   end
 
-  post "/" do
-    @rd = env["rack.request.form_hash"]["rd"].to_s
-    visitor = RD::RD2MarkdownVisitor.new
-    tree = RD::RDTree.new("=begin\n#{@rd}\n=end")
-    @markdown = visitor.visit(tree).join("")
-    haml ""
+  post "/rd2markdown" do
+    begin
+      src = env["rack.request.form_hash"]["rd"].to_s
+      visitor = RD::RD2MarkdownVisitor.new
+      tree = RD::RDTree.new("=begin\n#{src}\n=end")
+      visitor.visit(tree).join("").strip
+    rescue => e
+      e.message
+    end
   end
 end
 
@@ -75,7 +78,35 @@ __END__
      $(document).on('keyup.autogrow change.autogrow input.autogrow paste.autogrow', 'textarea', function() {
        return $(this).autogrow();
      });
-     return $('textarea').autogrow();
+     $('textarea').autogrow();
+
+     $(document).on('keyup change input paste', '#rd', function() {
+       var handler, self, timerId;
+       self = $(this);
+       console.log(self)
+       timerId = self.removeData('timerId');
+       if (timerId) {
+         clearTimeout(timerId);
+       }
+       handler = function() {
+         $.ajax({
+           url: "/rd2markdown",
+           type: "POST",
+           data: {
+             rd: self.val()
+           },
+           error: function(xhr, status, error) {
+             $('#markdown').val(error).change();
+           },
+           success: function(data, status, xhr) {
+             $('#markdown').val(data).change();
+           }
+         });
+         self.removeData('timerId');
+       };
+       self.data('timerId', setTimeout(handler, 1000));
+     });
+
    });
  %body.container
   %h1= @title
@@ -84,7 +115,8 @@ __END__
    .col-md-6
     %form(method="post" role="form")
      .form-group
-      %textarea.form-control(rows="10" name="rd")= @rd
-     %input.btn.btn-block.btn-default(type="submit")
+      %textarea.form-control(rows="10" id="rd" name="rd")= @rd
    .col-md-6
-    %pre.markdown&= @markdown
+    %form
+     .form-group
+      %textarea.form-control#markdown(readonly)
