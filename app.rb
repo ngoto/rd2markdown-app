@@ -9,7 +9,6 @@ require "rd/rdfmt"
 
 class App < Sinatra::Base
   enable :inline_templates
-  enable :logging
 
   configure :development do
     use BetterErrors::Middleware
