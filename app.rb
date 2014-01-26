@@ -58,8 +58,9 @@ __END__
          timeoutBuffer: 100
        }, options);
        self = this;
-       timerId = self.removeData('timerId');
+       timerId = self.data('timerId');
        if (timerId) {
+         self.removeData('timerId');
          clearTimeout(timerId);
        }
        handler = function() {
@@ -83,9 +84,9 @@ __END__
      $(document).on('keyup change input paste', '#rd', function() {
        var handler, self, timerId;
        self = $(this);
-       console.log(self)
-       timerId = self.removeData('timerId');
+       timerId = self.data('timerId');
        if (timerId) {
+         self.removeData('timerId');
          clearTimeout(timerId);
        }
        handler = function() {
