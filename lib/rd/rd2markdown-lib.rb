@@ -16,7 +16,7 @@ module RD
 
     def visit(tree)
       prepare_labels(tree, "label-")
-      super(tree)
+      super(tree).join("")
     end
 
     def apply_to_DocumentElement(element, content)

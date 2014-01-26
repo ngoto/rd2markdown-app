@@ -30,7 +30,7 @@ class App < Sinatra::Base
       src = env["rack.request.form_hash"]["rd"].to_s
       visitor = RD::RD2MarkdownVisitor.new
       tree = RD::RDTree.new("=begin\n#{src}\n=end")
-      visitor.visit(tree).join("").strip
+      visitor.visit(tree).strip
     rescue => e
       e.message
     end
