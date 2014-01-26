@@ -21,6 +21,11 @@ class App < Sinatra::Base
   end
 
   get "/" do
+    @rd = <<-'RD'
+= RD
+(1) foo
+(2) bar
+    RD
     haml ""
   end
 
@@ -79,7 +84,7 @@ __END__
        }
        src.data('timerId', setTimeout(handler, 1000));
      });
-
+     handler();
    });
  %body.container
   %div(data-role="page")
