@@ -68,15 +68,15 @@ __END__
            scrollHeight = e.scrollHeight;
            clientHeight = e.clientHeight;
            if (clientHeight < scrollHeight) {
-             return $(e).height(scrollHeight + settings.extraLineHeight);
+             $(e).height(scrollHeight + settings.extraLineHeight);
            }
          });
-         return self.removeData('timerId');
+         self.removeData('timerId');
        };
-       return self.data('timerId', setTimeout(handler, settings.timeoutBuffer));
+       self.data('timerId', setTimeout(handler, settings.timeoutBuffer));
      };
      $(document).on('keyup.autogrow change.autogrow input.autogrow paste.autogrow', 'textarea', function() {
-       return $(this).autogrow();
+       $(this).autogrow();
      });
      $('textarea').autogrow();
 
