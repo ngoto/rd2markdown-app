@@ -26,7 +26,7 @@ module RD
     end
 
     def apply_to_Headline(element, title)
-      %Q[\n#{'#'*element.level} #{title.join("").rstrip}\n\n]
+      %Q[#{'#'*element.level} #{title.join("").rstrip}\n\n]
     end
 
     def apply_to_TextBlock(element, content)
