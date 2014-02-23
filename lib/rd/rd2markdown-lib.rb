@@ -10,7 +10,7 @@ module RD
     OUTPUT_SUFFIX = "markdown"
     INCLUDE_SUFFIX = ["markdown"]
 
-    METACHAR = { "<" => "&lt;", ">" => "&gt;", "&" => "&amp;" }
+    METACHAR = { "<" => "&lt;", ">" => "&gt;", "&" => "&amp;", '`' => "&#96;" }
 
     def initialize
       @enumcounter = 0
@@ -162,7 +162,7 @@ module RD
     end
 
     def meta_char_escape(str)
-      str.gsub(/[<>&]/) {
+      str.gsub(/[<>&`]/) {
         METACHAR[$&]
       }
     end
