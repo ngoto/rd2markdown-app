@@ -1,5 +1,6 @@
 =begin
 = rd2markdown-lib.rb
+This file is same license of rdtool.
 =end
 
 require "rd/rdvisitor"
