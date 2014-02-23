@@ -26,7 +26,7 @@ module RD
     end
 
     def apply_to_Headline(element, title)
-      %Q[\n#{'#'*element.level} #{title.join("")}\n\n]
+      %Q[#{'#'*element.level} #{title.join("").rstrip}\n\n]
     end
 
     def apply_to_TextBlock(element, content)
@@ -38,7 +38,7 @@ module RD
       element.each_line do |i|
         content.push(i)
       end
-      %Q[<pre>#{content.join("").rstrip}</pre>]
+      %Q[<pre>#{content.join("").rstrip}</pre>\n]
     end
 
     def apply_to_ItemList(element, items)
@@ -52,11 +52,11 @@ module RD
     end
 
     def apply_to_DescList(element, items)
-      %Q[<dl>\n#{items.join("\n").rstrip}\n</dl>]
+      %Q[<dl>\n#{items.map{|s| s.rstrip }.join("\n")}</dl>\n\n]
     end
 
     def apply_to_MethodList(element, items)
-      %Q[<dl>\n#{items.join("\n").rstrip}\n</dl>]
+      %Q[<dl>\n#{items.map{|s| s.rstrip }.join("\n")}</dl>\n\n]
     end
 
     def apply_to_ItemListItem(element, content)
@@ -74,7 +74,7 @@ module RD
       if description.empty?
         %Q[<dt>#{Array(term).join("")}</dt>\n]
       else
-        %Q[<dt>#{Array(term).join("")}</dt>\n<dd>\n#{description.join("").rstrip}\n</dd>]
+        %Q[<dt>#{Array(term).join("")}</dt>\n<dd>#{description.join("").rstrip}</dd>\n]
       end
     end
 
