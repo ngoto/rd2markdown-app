@@ -10,6 +10,8 @@ module RD
     OUTPUT_SUFFIX = "markdown"
     INCLUDE_SUFFIX = ["markdown"]
 
+    METACHAR = { "<" => "&lt;", ">" => "&gt;", "&" => "&amp;" }
+
     def initialize
       @enumcounter = 0
     end
@@ -156,9 +158,15 @@ module RD
     end
 
     def apply_to_String(element)
-      # TODO: escape meta chars
-      element
+      meta_char_escape(element)
     end
+
+    def meta_char_escape(str)
+      str.gsub(/[<>&]/) {
+        METACHAR[$&]
+      }
+    end
+    private :meta_char_escape
   end
 end
 
