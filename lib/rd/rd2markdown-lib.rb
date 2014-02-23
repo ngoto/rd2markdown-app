@@ -24,11 +24,11 @@ module RD
     end
 
     def apply_to_Headline(element, title)
-      %Q[\n#{'#'*element.level} #{title.join("")}\n]
+      %Q[\n#{'#'*element.level} #{title.join("")}\n\n]
     end
 
     def apply_to_TextBlock(element, content)
-      content.join("")
+      "#{content.join("").rstrip}\n\n"
     end
 
     def apply_to_Verbatim(element)
@@ -36,40 +36,47 @@ module RD
       element.each_line do |i|
         content.push(i)
       end
-      %Q[<pre>#{content.join("").chomp}</pre>]
+      %Q[<pre>#{content.join("").rstrip}</pre>]
     end
 
     def apply_to_ItemList(element, items)
-      "#{items.join("\n").chomp}\n"
+      "#{items.join("\n").rstrip}\n"
     end
 
     def apply_to_EnumList(element, items)
       @enumcounter = 0
-      "#{items.join("\n").chomp}\n"
+      "#{items.join("\n").rstrip}\n"
     end
 
     def apply_to_DescList(element, items)
-      "#{items.join("\n").chomp}\n"
+      %Q[<dl>\n#{items.join("\n").rstrip}\n</dl>]
     end
 
     def apply_to_MethodList(element, items)
-      apply_to_DescList(element, items)
+      %Q[<dl>\n#{items.join("\n").rstrip}\n</dl>]
     end
 
     def apply_to_ItemListItem(element, content)
-      %Q[* #{content.join("").chomp}]
+      '* ' + content.map{|s| s.rstrip }.join("\n").gsub(/^(?!\A)/, '  ')
     end
 
     def apply_to_EnumListItem(element, content)
       @enumcounter += 1
-      %Q[#{@enumcounter}. #{content.join("").chomp}]
+      prefix = %Q[#{@enumcounter}. ]
+      indent = ' ' * prefix.size
+      prefix + content.map{|s| s.rstrip }.join("\n").gsub(/^(?!\A)/, indent)
     end
 
     def apply_to_DescListItem(element, term, description)
-      "#{Array(term).join("")}\n: #{description.join("")}\n"
+      if description.empty?
+        %Q[<dt>#{Array(term).join("")}</dt>\n]
+      else
+        %Q[<dt>#{Array(term).join("")}</dt>\n<dd>\n#{description.join("").rstrip}\n</dd>]
+      end
     end
 
     def apply_to_MethodListItem(element, term, description)
+      # TODO
       apply_to_DescListItem(element, term, description)
     end
 
@@ -78,22 +85,23 @@ module RD
     end
 
     def apply_to_Emphasis(element, content)
-      %Q[ *#{content.join("")}* ]
+      %Q[<em>#{content.join("")}</em>]
     end
 
     def apply_to_Code(element, content)
-      %Q[ `#{content.join("")}` ]
+      %Q[<code>#{content.join("")}</code>]
     end
 
     def apply_to_Var(element, content)
-      %Q[ `#{content.join("")}` ]
+      %Q[<var>#{content.join("")}</var>]
     end
 
     def apply_to_Keyboard(element, content)
-      %Q[ `#{content.join("")}` ]
+      %Q[<kbd>#{content.join("")}</kbd>]
     end
 
     def apply_to_Index(element, content)
+      # TODO
       content.join("")
     end
 
