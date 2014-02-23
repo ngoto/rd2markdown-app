@@ -158,7 +158,7 @@ module RD
     end
 
     def apply_to_String(element)
-      meta_char_escape(element)
+      meta_char_escape(element.delete("\r\n"))
     end
 
     def meta_char_escape(str)
