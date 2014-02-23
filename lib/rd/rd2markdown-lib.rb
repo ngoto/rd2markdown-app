@@ -38,17 +38,17 @@ module RD
       element.each_line do |i|
         content.push(i)
       end
-      %Q[<pre>#{content.join("").rstrip}</pre>\n]
+      %Q[<pre>#{content.join("").rstrip}</pre>\n\n]
     end
 
     def apply_to_ItemList(element, items)
-      "#{items.join("\n").rstrip}\n"
+      "#{items.join("\n").rstrip}\n\n"
     end
 
     def apply_to_EnumList(element, items)
       # FIXME: broken counter in nested enum list
       @enumcounter = 0
-      "#{items.join("\n").rstrip}\n"
+      "#{items.join("\n").rstrip}\n\n"
     end
 
     def apply_to_DescList(element, items)
