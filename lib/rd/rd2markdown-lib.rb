@@ -44,6 +44,7 @@ module RD
     end
 
     def apply_to_EnumList(element, items)
+      # FIXME: broken counter in nested enum list
       @enumcounter = 0
       "#{items.join("\n").rstrip}\n"
     end
@@ -76,7 +77,7 @@ module RD
     end
 
     def apply_to_MethodListItem(element, term, description)
-      # TODO
+      # TODO: see parse_method in lib/rd/rd2html-lib.rb
       apply_to_DescListItem(element, term, description)
     end
 
@@ -101,7 +102,7 @@ module RD
     end
 
     def apply_to_Index(element, content)
-      # TODO
+      # TODO: ignored
       content.join("")
     end
 
