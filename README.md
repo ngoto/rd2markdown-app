@@ -2,6 +2,19 @@
 
 rd2markdown with web interface
 
+## Usage
+
+- Prepare
+- Install Ruby and RubyGems
+- `gem install bundler`
+- `bundle install`
+
+- Convert
+  - Run `rackup config.ru`
+  - Open `http://localhost:4567/`
+  - Input RD into left text area
+  - Copy from right text area to anywhere
+
 ## LICENSE
 
 Web interface is BSD 2-Clause license.
