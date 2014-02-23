@@ -142,7 +142,7 @@ module RD
     end
 
     def apply_to_RefToURL(element, content)
-      if content.join("") == "<URL:#{element.label.url}>"
+      if content.join("") == meta_char_escape("<URL:#{element.label.url}>")
         element.label.url
       else
         %Q<[#{content.join("")}](#{element.label.url})>
