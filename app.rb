@@ -36,7 +36,7 @@ class App < Sinatra::Base
       tree = RD::RDTree.new("=begin\n#{src}\n=end")
       visitor.visit(tree).strip
     rescue => e
-      e.message
+      "#{e.message}\n\n#{e.backtrace.join("\n")}"
     end
   end
 end
