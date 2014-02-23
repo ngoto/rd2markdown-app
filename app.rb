@@ -32,8 +32,11 @@ class App < Sinatra::Base
   post "/rd2markdown" do
     begin
       src = env["rack.request.form_hash"]["rd"].to_s
+      unless /^=begin/ =~ src
+        src = "=begin\n#{src}\n=end"
+      end
       visitor = RD::RD2MarkdownVisitor.new
-      tree = RD::RDTree.new("=begin\n#{src}\n=end")
+      tree = RD::RDTree.new(src)
       visitor.visit(tree).strip
     rescue => e
       "#{e.message}\n\n#{e.backtrace.join("\n")}"
