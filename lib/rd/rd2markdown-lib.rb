@@ -31,15 +31,37 @@ module RD
     end
 
     def apply_to_TextBlock(element, content)
-      "#{content.join("").rstrip}\n\n"
+      content = content.join("")
+      if (is_this_textblock_only_one_block_of_parent_listitem?(element) or
+	  is_this_textblock_only_one_block_other_than_sublists_in_parent_listitem?(element))
+	content.chomp
+      else
+        "#{content.rstrip}\n\n"
+      end
     end
 
     def apply_to_Verbatim(element)
+      lang=nil
       content = []
       element.each_line do |i|
         content.push(i)
+        lang ||=
+          case i
+          when /^\s*\% /
+            'sh'
+          when /^\s*\\documentclass/
+            'latex'
+          when /require +["']/,
+               /[a-z]+\.[a-z]+\.[a-z]+/,
+               /[a-z]+\.[a-z][\_a-zA-Z0-9]*\(/,
+               /[A-Z][\_A-Za-z0-9]+\:\:[A-Z][\_A-Za-z0-9]+/,
+               /\]\.[a-z][\_a-zA-Z0-9]+/,
+               /each +do/, /each \{/
+            'ruby'
+          end
       end
-      %Q[<pre>#{content.join("").rstrip}</pre>\n\n]
+
+      %Q[```#{lang}\n#{content.join("").rstrip}\n```\n\n]
     end
 
     def apply_to_ItemList(element, items)
@@ -60,15 +82,42 @@ module RD
       %Q[<dl>\n#{items.map{|s| s.rstrip }.join("\n")}</dl>\n\n]
     end
 
+    def indent_for_list(s, flag_first, normal_prefix, indent_level = 1)
+      # TODO: indent level should be counted by caller
+      if /\A\`\`\`/ =~s && /\`\`\`\n\n\z/ =~ s then
+        #first "\n" must be needed and
+        #indent of each line must be exactly 4 spaces
+        # Reference: https://gist.githubusercontent.com/clintel/1155906/raw/6b2a78696ff6b0b7222691c52fd0f3c6b98e3172/gistfile1.md
+        "\n" + s.rstrip.gsub(/^/, '    ' * indent_level) + "\n"
+      elsif flag_first then
+        s.rstrip.gsub(/^(?!\A)/, normal_prefix)
+      else
+        s.rstrip.gsub(/^/, normal_prefix)
+      end
+    end
+    private :indent_for_list
+
     def apply_to_ItemListItem(element, content)
-      '* ' + content.map{|s| s.rstrip }.join("\n").gsub(/^(?!\A)/, '  ')
+      first = true
+      a = content.map { |s|
+        ret = indent_for_list(s, first, '   ')
+        first = false
+        ret
+      }
+      '* ' + a.join("\n")
     end
 
     def apply_to_EnumListItem(element, content)
       @enumcounter += 1
       prefix = %Q[#{@enumcounter}. ]
       indent = ' ' * prefix.size
-      prefix + content.map{|s| s.rstrip }.join("\n").gsub(/^(?!\A)/, indent)
+      first = true
+      a = content.map { |s|
+        ret = indent_for_list(s, first, indent)
+        first = false
+        ret
+      }
+      prefix + a.join("\n")
     end
 
     def apply_to_DescListItem(element, term, description)
@@ -159,6 +208,19 @@ module RD
     end
 
     def apply_to_String(element)
+      element = element.gsub(/([^\s])(\s*)[\r\n]+(\s*)([^\s])/) { |x|
+        chrL = $1
+        spcL = $2
+        spcR = $3
+        chrR = $4
+        #$stderr.puts [ chrL, chrL.encoding, spcL, spcL.encoding, spcR, spcR.encoding, chrR, chrR.encoding ].inspect
+        ret = if chrL.ord < 127 || chrR.ord < 127 then
+                "#{chrL} #{chrR}"
+              else
+                "#{chrL}#{chrR}"
+              end
+        ret
+      }
       meta_char_escape(element.delete("\r\n"))
     end
 
@@ -168,6 +230,44 @@ module RD
       }
     end
     private :meta_char_escape
+
+    private
+
+    def is_this_textblock_only_one_block_of_parent_listitem?(element)
+      parent = element.parent
+      (parent.is_a?(ItemListItem) or
+       parent.is_a?(EnumListItem) or
+       parent.is_a?(DescListItem) or
+       parent.is_a?(MethodListItem)) and
+	consist_of_one_textblock?(parent)
+    end
+
+    def is_this_textblock_only_one_block_other_than_sublists_in_parent_listitem?(element)
+      parent = element.parent
+      (parent.is_a?(ItemListItem) or
+       parent.is_a?(EnumListItem) or
+       parent.is_a?(DescListItem) or
+       parent.is_a?(MethodListItem)) and
+	consist_of_one_textblock_and_sublists(element.parent)
+    end
+
+    def consist_of_one_textblock_and_sublists(element)
+      i = 0
+      element.each_child do |child|
+	if i == 0
+	  return false unless child.is_a?(TextBlock)
+	else
+	  return false unless child.is_a?(List)
+	end
+	i += 1
+      end
+      return true
+    end
+
+    def consist_of_one_textblock?(listitem)
+      listitem.children.size == 1 and listitem.children[0].is_a?(TextBlock)
+    end
+
   end
 end
 
